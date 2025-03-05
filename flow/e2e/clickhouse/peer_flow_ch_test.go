@@ -1082,12 +1082,14 @@ func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 	ch, err := connclickhouse.Connect(s.t.Context(), nil, s.PeerForDatabase("default").GetClickhouseConfig())
 	require.NoError(s.t, err)
 	fakeDestination2 := "test_normalize_metadata_with_retry_dst_2_fake"
-	ch.Exec(s.t.Context(), fmt.Sprintf(`RENAME TABLE %s TO %s`, dstTableName2, fakeDestination2))
-
+	renameErr := ch.Exec(s.t.Context(), fmt.Sprintf(`RENAME TABLE %s TO %s`, dstTableName2, fakeDestination2))
+	require.NoError(s.t, renameErr)
 	require.NoError(s.t, s.source.Exec(s.t.Context(), fmt.Sprintf(`UPDATE %s SET id=id+10, "key"='update'||id`, srcFullName2)))
 
 	e2e.EnvWaitFor(s.t, env, 1*time.Minute, "waiting for sync to complete", func() bool {
-		rows, err := s.source.Query(s.t.Context(), fmt.Sprintf("SELECT sync_batch_id FROM metadata_last_sync_state WHERE job_name='%s'", flowConnConfig.FlowJobName))
+		rows, err := s.source.Query(s.t.Context(),
+			fmt.Sprintf("SELECT sync_batch_id FROM metadata_last_sync_state WHERE job_name='%s'",
+				flowConnConfig.FlowJobName))
 		if err != nil {
 			return false
 		}
@@ -1123,13 +1125,15 @@ func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 	})
 
 	// Rename the table back to simulate a successful push to ClickHouse
-	ch.Exec(s.t.Context(), fmt.Sprintf(`RENAME TABLE %s TO %s`, fakeDestination2, dstTableName2))
-
+	renameErr = ch.Exec(s.t.Context(), fmt.Sprintf(`RENAME TABLE %s TO %s`, fakeDestination2, dstTableName2))
+	require.NoError(s.t, renameErr)
 	require.NoError(s.t, s.source.Exec(s.t.Context(), fmt.Sprintf(`UPDATE %s SET id=id+10, "key"='update'||id`, srcFullName2)))
 	require.NoError(s.t, s.source.Exec(s.t.Context(), fmt.Sprintf(`UPDATE %s SET id=id+10, "key"='update'||id`, srcFullName1)))
 
 	e2e.EnvWaitFor(s.t, env, 1*time.Minute, "waiting for sync to complete", func() bool {
-		rows, err := s.source.Query(s.t.Context(), fmt.Sprintf("SELECT sync_batch_id FROM metadata_last_sync_state WHERE job_name='%s'", flowConnConfig.FlowJobName))
+		rows, err := s.source.Query(s.t.Context(),
+			fmt.Sprintf("SELECT sync_batch_id FROM metadata_last_sync_state WHERE job_name='%s'",
+				flowConnConfig.FlowJobName))
 		if err != nil {
 			return false
 		}

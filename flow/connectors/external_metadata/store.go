@@ -2,20 +2,19 @@ package connmetadata
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
+	"strconv"
 	"time"
-
-	"encoding/json"
 
 	"github.com/jackc/pglogrepl"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.temporal.io/sdk/log"
 	"google.golang.org/protobuf/encoding/protojson"
-
-	"maps"
 
 	"github.com/PeerDB-io/peerdb/flow/connectors/utils/monitoring"
 	"github.com/PeerDB-io/peerdb/flow/generated/protos"
@@ -170,7 +169,7 @@ func (p *PostgresMetadata) SetLastSyncedBatchIDForTable(ctx context.Context, job
 	if _, err := p.pool.Exec(ctx,
 		`UPDATE `+lastSyncStateTableName+`
 		SET table_batch_id_data = jsonb_set(table_batch_id_data::jsonb, $2, $3::jsonb, true)
-		WHERE job_name = $1`, jobName, fmt.Sprintf(`{%s}`, dstTableName), fmt.Sprintf(`%d`, batchID),
+		WHERE job_name = $1`, jobName, fmt.Sprintf(`{%s}`, dstTableName), strconv.FormatInt(batchID, 10),
 	); err != nil {
 		p.logger.Error("failed to update table batch id data", "error", err)
 		return fmt.Errorf("failed to update table batch id data: %w", err)
