@@ -1110,7 +1110,7 @@ func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 		rows, err := s.source.Query(s.t.Context(), fmt.Sprintf(`
 		SELECT COUNT(*) FROM peerdb_stats.flow_errors
 		WHERE error_type='error' AND position('%s' in flow_name) > 0
-		AND error_message ILIKE '%error while inserting into normalized table%'`, flowConnConfig.FlowJobName))
+		AND error_message ILIKE '%%error while inserting into normalized table%%'`, flowConnConfig.FlowJobName))
 		if err != nil {
 			return false
 		}
