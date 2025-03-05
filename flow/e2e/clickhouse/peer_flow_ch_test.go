@@ -1093,7 +1093,7 @@ func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 		if err != nil {
 			return false
 		}
-
+		slog.Info("sync_batch_id values", slog.Any("rows", rows.Records))
 		if len(rows.Records) == 0 {
 			return false
 		}
