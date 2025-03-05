@@ -203,3 +203,12 @@ func (s *PostgresSource) GetRows(ctx context.Context, suffix string, table strin
 		fmt.Sprintf(`SELECT %s FROM e2e_test_%s.%s ORDER BY id`, cols, suffix, utils.QuoteIdentifier(table)),
 	)
 }
+
+func (s *PostgresSource) Query(ctx context.Context, query string) (*model.QRecordBatch, error) {
+	pgQueryExecutor, err := s.PostgresConnector.NewQRepQueryExecutor(ctx, "testflow", "testpart")
+	if err != nil {
+		return nil, err
+	}
+
+	return pgQueryExecutor.ExecuteAndProcessQuery(ctx, query)
+}
