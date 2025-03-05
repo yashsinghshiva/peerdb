@@ -1035,10 +1035,10 @@ func (s ClickHouseSuite) Test_Nullable_Schema_Change() {
 // with a push to ClickHouse thrown in via renaming a target table.
 func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 	srcTableName1 := "test_normalize_metadata_with_retry_1"
-	srcFullName1 := s.attachSchemaSuffix("test_normalize_metadata_with_retry_1")
+	srcFullName1 := s.attachSchemaSuffix(srcTableName1)
 	dstTableName1 := "test_normalize_metadata_with_retry_dst_1"
-	srcTableName1 = s.attachSchemaSuffix(srcTableName1)
-	srcFullName2 := s.attachSchemaSuffix("test_normalize_metadata_with_retry_2")
+	srcTableName2 := "test_normalize_metadata_with_retry_2"
+	srcFullName2 := s.attachSchemaSuffix(srcTableName2)
 	dstTableName2 := "test_normalize_metadata_with_retry_dst_2"
 
 	require.NoError(s.t, s.source.Exec(s.t.Context(), fmt.Sprintf(`
@@ -1053,7 +1053,7 @@ func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
 		id INT PRIMARY KEY,
 		"key" TEXT NOT NULL
 	);
-`, srcFullName2)))
+	`, srcFullName2)))
 
 	require.NoError(s.t, s.source.Exec(s.t.Context(),
 		fmt.Sprintf(`INSERT INTO %s (id,"key") VALUES (1,'init'),(2,'two'),(3,'tri'),(4,'cry')`, srcFullName1)))
