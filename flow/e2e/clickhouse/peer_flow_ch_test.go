@@ -1034,6 +1034,9 @@ func (s ClickHouseSuite) Test_Nullable_Schema_Change() {
 // Test_Normalize_Metadata_With_Retry tests the chunking normalization
 // with a push to ClickHouse thrown in via renaming a target table.
 func (s ClickHouseSuite) Test_Normalize_Metadata_With_Retry() {
+	if _, ok := s.source.(*e2e.MySqlSource); ok {
+		s.t.Skip("todo: only applies to postgres for now")
+	}
 	srcTableName1 := "test_normalize_metadata_with_retry_1"
 	srcFullName1 := s.attachSchemaSuffix(srcTableName1)
 	dstTableName1 := "test_normalize_metadata_with_retry_dst_1"
